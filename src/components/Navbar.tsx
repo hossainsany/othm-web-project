@@ -42,8 +42,8 @@ export const Navbar = () => {
                 <Link
                   to={item.link}
                   aria-current={isCurrentPage ? "page" : undefined}
-                  className={`transition-colors hover:text-primary ${focusStyles} ${
-                    isCurrentPage ? "font-semibold text-primary" : "font-medium"
+                  className={`transition-colors hover:text-primary font-medium ${focusStyles} ${
+                    isCurrentPage && "text-primary"
                   }`}
                 >
                   {item.label}
