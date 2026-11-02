@@ -1,0 +1,58 @@
+{
+  "bread": [
+    {
+      "name": "Country sourdough",
+      "price": "$7.00",
+      "description": "Our signature loaf, with a crisp crust and soft center."
+    },
+    {
+      "name": "Seeded whole wheat",
+      "price": "$7.50",
+      "description": "A hearty loaf with sunflower, flax and sesame seeds."
+    },
+    {
+      "name": "French baguette",
+      "price": "$4.00",
+      "description": "Golden, crackly crust. A good friend to any soup."
+    },
+    {
+      "name": "Rosemary focaccia",
+      "price": "$5.00",
+      "description": "Olive oil, fresh rosemary and a sprinkle of sea salt."
+    }
+  ],
+  "pastries": [
+    {
+      "name": "Butter croissant",
+      "price": "$3.50",
+      "description": "Flaky layers, cultured butter and nothing extra."
+    },
+    {
+      "name": "Cinnamon bun",
+      "price": "$4.00",
+      "description": "Soft swirls of cinnamon with vanilla icing."
+    },
+    {
+      "name": "Blueberry muffin",
+      "price": "$3.25",
+      "description": "Juicy blueberries and a crumbly sugar top."
+    },
+    {
+      "name": "Pain au chocolat",
+      "price": "$4.00",
+      "description": "Buttery pastry wrapped around dark chocolate."
+    }
+  ],
+  "Cakes": [
+    {
+      "name": "Chocolate cake slice",
+      "price": "$5.50",
+      "description": "Rich cocoa sponge with a silky chocolate frosting."
+    },
+    {
+      "name": "Carrot cake slice",
+      "price": "$7.50",
+      "description": "Gently spiced, with walnuts and cream cheese frosting."
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+import { Link, useLocation } from "@tanstack/react-router";
+import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+
+const navItems = [
+  { label: "Home", link: "/" },
+  { label: "Menu", link: "/menu" },
+  { label: "About", link: "/about" },
+  { label: "Contact", link: "/contact" },
+];
+
+const focusStyles =
+  "focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring";
+
+export const Navbar = () => {
+  const pathname = useLocation().pathname;
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsOpen(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
+  return (
+    <nav aria-label="Main navigation" className="bg-secondary">
+      <div className="container mx-auto px-4 lg:px-0 flex items-center justify-between h-14">
+        <Link to="/" className={`text-lg font-medium ${focusStyles}`}>
+          Local Bakery Co.
+        </Link>
+        <ul className="hidden md:flex items-center justify-end gap-8">
+          {navItems.map((item) => {
+            const isCurrentPage = pathname === item.link;
+
+            return (
+              <li key={item.label}>
+                <Link
+                  to={item.link}
+                  aria-current={isCurrentPage ? "page" : undefined}
+                  className={`transition-colors hover:text-primary ${focusStyles} ${
+                    isCurrentPage ? "font-semibold text-primary" : "font-medium"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <button
+          type="button"
+          onClick={() => setIsOpen((open) => !open)}
+          className="md:hidden inline-flex size-9 items-center justify-center rounded-lg transition-colors hover:bg-background/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring motion-reduce:transition-none cursor-pointer"
+          aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={isOpen}
+          aria-controls="mobile-menu"
+        >
+          {isOpen ? (
+            <X className="size-6" aria-hidden="true" />
+          ) : (
+            <Menu className="size-6" aria-hidden="true" />
+          )}
+        </button>
+      </div>
+
+      <div
+        id="mobile-menu"
+        inert={!isOpen}
+        aria-hidden={!isOpen}
+        className={`md:hidden grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none ${
+          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <ul className="container mx-auto px-4 border-t border-border/60 flex flex-col">
+            {navItems.map((item) => {
+              const isCurrentPage = pathname === item.link;
+
+              return (
+                <li key={item.label}>
+                  <Link
+                    to={item.link}
+                    onClick={() => setIsOpen(false)}
+                    aria-current={isCurrentPage ? "page" : undefined}
+                    className={`block border-b border-border/60 py-4 transition-colors last:border-none hover:text-primary ${focusStyles} ${
+                      isCurrentPage ? "font-semibold text-primary" : "font-medium"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+    </nav>
+  );
+};
