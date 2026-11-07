@@ -20,7 +20,7 @@ A multi-page website for a fictional local bakery, built with React and Vite. Th
 - **TanStack Form:** manages the contact form's values and validation.
 - **Supabase:** provides the public menu data, contact-message storage, and staff authentication. The browser client is used directly; Row Level Security keeps staff-only data protected while allowing anyone to send a contact message.
 - **Sonner:** shows toast notifications, including contact-form success and error messages.
-- **Vitest and Testing Library:** run unit and interaction tests in a simulated browser environment.
+- **Vitest:** runs the unit tests in a simulated browser environment (jsdom), with the Supabase client mocked so no network or project setup is needed.
 
 ## Requirements
 
@@ -100,30 +100,66 @@ Restart the dev server after changing environment variables, then sign in at `/l
 
 ```
 website/
-├── public/              # Static files (favicon, images)
+├── public/                       # Static images used by the site (hero, about, favicon)
 ├── src/
-│   ├── assets/          # Images and other imported assets
 │   ├── components/
-│   │   ├── dashboard/   # Staff dashboard UI
-│   │   └── ui/          # shadcn/ui components
+│   │   ├── dashboard/            # Staff-only dashboard UI
+│   │   │   ├── DashboardShell.tsx    # Header, dashboard nav, signed-in email, sign out
+│   │   │   ├── MenuManager.tsx       # Add, edit, hide and delete menu items
+│   │   │   ├── ContactsManager.tsx   # Filter messages, change status, delete messages
+│   │   │   └── DashboardError.tsx    # Error fallback for dashboard routes
+│   │   ├── ui/                   # shadcn/ui primitives (button, input, label, textarea, sonner)
+│   │   ├── ContactForm.tsx       # Validated contact form that saves to Supabase
+│   │   ├── ContactPage.tsx       # Contact details, opening hours and contact form layout
+│   │   ├── CustomOrders.tsx      # Custom-order callout (not currently mounted)
+│   │   ├── PageHeader.tsx        # Shared heading for public pages
+│   │   ├── Navbar.tsx            # Public navigation, mobile menu and login/dashboard button
+│   │   ├── Footer.tsx            # Public footer
+│   │   ├── Hero.tsx              # Home page hero
+│   │   ├── Favorites.tsx         # Home page favorite bakes
+│   │   ├── Story.tsx             # Home page bakery story
+│   │   └── Hours.tsx             # Home page opening hours
+│   ├── hooks/
+│   │   └── useDocumentTitle.ts   # Keeps document.title in sync with the current page
 │   ├── lib/
-│   │   ├── supabase/    # Browser Supabase client, auth, and CRUD helpers
-│   │   └── validation.ts
-│   ├── routes/          # File-based routes
-│   │   ├── __root.tsx   # Root layout, devtools, and 404 page
-│   │   ├── dashboard/   # Protected staff routes
-│   │   └── index.tsx    # Home
-│   ├── tests/           # Unit and interaction tests
-│   ├── index.css        # Tailwind and shadcn theme tokens
-│   ├── main.tsx         # Router setup and app entry point
-│   └── routeTree.gen.ts # Generated route tree (do not edit)
+│   │   ├── supabase/
+│   │   │   ├── client.ts         # Lazily creates the browser Supabase client
+│   │   │   ├── auth.ts           # Sign in, read the current user, sign out
+│   │   │   ├── menu.ts           # Public menu query plus menu item create/update/delete
+│   │   │   ├── contacts.ts       # Submit messages, list/update/delete them, dashboard counts
+│   │   │   └── types.ts          # Shared app types
+│   │   ├── validation.ts         # Zod schemas for login, contact and menu forms
+│   │   └── utils.ts              # cn() class-name helper
+│   ├── routes/                   # File-based routes (TanStack Router)
+│   │   ├── __root.tsx            # Root layout: skip link, navbar, footer, toaster, 404 page
+│   │   ├── index.tsx             # / — home page
+│   │   ├── about.tsx             # /about
+│   │   ├── menu.tsx              # /menu — public menu loaded from Supabase
+│   │   ├── contact.tsx           # /contact
+│   │   ├── login.tsx             # /login — staff sign in (signed-in staff go to the dashboard)
+│   │   ├── dashboard.tsx         # /dashboard — auth guard and dashboard layout
+│   │   └── dashboard/            # /dashboard overview, menu and contacts pages
+│   ├── tests/                    # Vitest unit tests (see Testing below)
+│   │   ├── auth.test.ts          # Login and session tests
+│   │   ├── contacts.test.ts      # Contact submission and message update/delete tests
+│   │   ├── menu.test.ts          # Menu create/update tests
+│   │   ├── helpers/supabase.ts   # Chainable Supabase mock shared by the tests
+│   │   └── setup.ts              # jsdom, jest-dom matchers and cleanup
+│   ├── index.css                 # Tailwind import and shadcn theme tokens
+│   ├── main.tsx                  # React entry point and router setup
+│   ├── routeTree.gen.ts          # Generated route tree (do not edit)
+│   └── vite-env.d.ts
 ├── supabase/
-│   └── schema.sql       # Tables, RLS policies, and seed data
-├── components.json      # shadcn configuration
-├── index.html
+│   └── schema.sql                # Tables, RLS policies and starter menu data
+├── components.json               # shadcn/ui configuration
+├── index.html                    # Vite HTML entry
+├── netlify.toml                  # Netlify build settings
 ├── package.json
-└── vite.config.ts
+├── tsconfig.json / tsconfig.app.json / tsconfig.node.json
+└── vite.config.ts                # Vite, Tailwind, TanStack Router and Vitest config
 ```
+
+In short, the public pages render from local components and, on `/menu`, from Supabase rows. The contact form validates input with Zod and inserts a row into `contact_messages`. The protected `/dashboard` routes call `getCurrentUser()` in `beforeLoad` and redirect to `/login` when there is no session; the dashboard managers then create, update and delete menu items and messages, calling `router.invalidate()` after every mutation so the route loaders re-fetch fresh data.
 
 Add a page by creating a `.tsx` file under `src/routes`, e.g. `src/routes/about.tsx` becomes `/about`. The route tree is regenerated automatically while the dev server is running.
 
@@ -137,7 +173,9 @@ pnpm dlx shadcn@latest add card
 
 ## Testing
 
-Run the test suite once:
+The suite uses Vitest in a jsdom environment. The Supabase client is mocked in every test, so the tests run without a Supabase project, environment variables or network access. Each test checks both the query sent to Supabase and the value returned or error thrown.
+
+Run the suite once:
 
 ```bash
 pnpm test
@@ -149,7 +187,17 @@ Or keep it running while you work:
 pnpm test:watch
 ```
 
-Tests live in `src/tests` and cover page headings, the footer, the mobile navigation and the contact form.
+Tests live in `src/tests`:
+
+| File | What it tests |
+| --- | --- |
+| `auth.test.ts` | **Login:** sends the email and password to `signInWithPassword`, maps the returned user, surfaces Supabase and fallback error messages, and reads the current session (returning `null` when Supabase is not configured or the session cannot be read). |
+| `contacts.test.ts` | **Form submission:** inserts the contact-form name, email and message into `contact_messages` and reports insert errors. **Message updates and deletes:** saves a new status plus `updated_at` for the given message id, deletes a message by id, and reports database errors. |
+| `menu.test.ts` | **Menu create:** inserts the item using snake_case columns, converts an empty description to `null`, maps the stored price back to a number, and turns a duplicate key error into a friendly message. **Menu update:** updates all fields plus `updated_at` for the given item id, returns the mapped row, and reports database errors. |
+| `helpers/supabase.ts` | Not a test itself. Provides `createSupabaseMock`, a chainable fake of Supabase's query builder so tests can `await` calls like `.insert(...).select().single()` and control the `{ data, error }` result. |
+| `setup.ts` | Not a test itself. Loads jest-dom matchers, unmounts React trees after each test, and adds jsdom shims for `matchMedia`, `ResizeObserver` and `scrollTo`. |
+
+To test a new Supabase helper, mock `@/lib/supabase/client` with `vi.mock`, return `createSupabaseMock({ data, error }).supabase` from `getSupabaseClient`, then assert on the returned `builder` spies (`insert`, `update`, `delete`, `eq`, `single`, etc.).
 
 ## Troubleshooting
 

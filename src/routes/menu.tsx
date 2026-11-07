@@ -35,7 +35,7 @@ function MenuPage() {
       <section aria-labelledby="menu-heading" className="py-24 bg-background">
         <div className="container mx-auto px-4 lg:px-0">
           {categories.length === 0 ? (
-            <div className="mx-auto mt-24 max-w-xl rounded-2xl border bg-card p-10 text-center">
+            <div className="mx-auto md:mt-24 max-w-xl rounded-2xl border bg-card p-10 text-center">
               <UtensilsCrossed
                 aria-hidden="true"
                 className="mx-auto size-9 text-muted-foreground"
@@ -55,7 +55,7 @@ function MenuPage() {
               </Button>
             </div>
           ) : (
-            <div className="flex flex-col gap-8 mt-24">
+            <div className="flex flex-col gap-8 md:mt-24">
               {categories.map(({ category, items }) => {
                 const categoryId = getCategoryId(category);
 

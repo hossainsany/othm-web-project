@@ -37,7 +37,6 @@ export const Navbar = () => {
     ? { to: "/dashboard" as const, label: "Dashboard" }
     : { to: "/login" as const, label: "Staff login" };
   const AccountIcon = user ? LayoutDashboard : LogIn;
-  const showAccountLink = pathname !== "/login" || Boolean(user);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -74,20 +73,18 @@ export const Navbar = () => {
               </li>
             );
           })}
-          {showAccountLink ? (
-            <li>
-              <Button
-                render={<Link to={accountLink.to} />}
-                nativeButton={false}
-                variant="outline"
-                size="sm"
-                className="h-9 px-3"
-              >
-                <AccountIcon aria-hidden="true" />
-                {accountLink.label}
-              </Button>
-            </li>
-          ) : null}
+          <li>
+            <Button
+              render={<Link to={accountLink.to} />}
+              nativeButton={false}
+              variant="outline"
+              size="sm"
+              className="h-9 px-3"
+            >
+              <AccountIcon aria-hidden="true" />
+              {accountLink.label}
+            </Button>
+          </li>
         </ul>
         <button
           type="button"
@@ -133,19 +130,17 @@ export const Navbar = () => {
                 </li>
               );
             })}
-            {showAccountLink ? (
-              <li className="py-4">
-                <Button
-                  render={<Link to={accountLink.to} onClick={() => setIsOpen(false)} />}
-                  nativeButton={false}
-                  variant="outline"
-                  className="w-full"
-                >
-                  <AccountIcon aria-hidden="true" />
-                  {accountLink.label}
-                </Button>
-              </li>
-            ) : null}
+            <li className="py-4">
+              <Button
+                render={<Link to={accountLink.to} onClick={() => setIsOpen(false)} />}
+                nativeButton={false}
+                variant="outline"
+                className="w-full"
+              >
+                <AccountIcon aria-hidden="true" />
+                {accountLink.label}
+              </Button>
+            </li>
           </ul>
         </div>
       </div>

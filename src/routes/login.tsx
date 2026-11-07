@@ -78,7 +78,7 @@ function LoginPage() {
   }
 
   return (
-    <section className="flex min-h-[75vh] items-center justify-center bg-secondary/40 px-4 py-16">
+    <section className="flex min-h-[80vh] items-center justify-center bg-secondary/40 px-4 py-16">
       <div className="w-full max-w-md rounded-2xl border bg-card p-8 shadow-sm">
         <div className="mb-8 flex flex-col items-center text-center">
           <span
