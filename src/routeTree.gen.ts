@@ -12,7 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as MenuRouteImport } from './routes/menu'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardContactsRouteImport } from './routes/dashboard/contacts'
+import { Route as DashboardMenuRouteImport } from './routes/dashboard/menu'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -29,43 +34,111 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardContactsRoute = DashboardContactsRouteImport.update({
+  id: '/contacts',
+  path: '/contacts',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMenuRoute = DashboardMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => DashboardRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
   '/menu': typeof MenuRoute
+  '/dashboard/contacts': typeof DashboardContactsRoute
+  '/dashboard/menu': typeof DashboardMenuRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/login': typeof LoginRoute
   '/menu': typeof MenuRoute
+  '/dashboard/contacts': typeof DashboardContactsRoute
+  '/dashboard/menu': typeof DashboardMenuRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/contact': typeof ContactRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
   '/menu': typeof MenuRoute
+  '/dashboard/contacts': typeof DashboardContactsRoute
+  '/dashboard/menu': typeof DashboardMenuRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/contact' | '/menu'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/dashboard'
+    | '/login'
+    | '/menu'
+    | '/dashboard/contacts'
+    | '/dashboard/menu'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/contact' | '/menu'
-  id: '__root__' | '/' | '/about' | '/contact' | '/menu'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/login'
+    | '/menu'
+    | '/dashboard/contacts'
+    | '/dashboard/menu'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/dashboard'
+    | '/login'
+    | '/menu'
+    | '/dashboard/contacts'
+    | '/dashboard/menu'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   ContactRoute: typeof ContactRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  LoginRoute: typeof LoginRoute
   MenuRoute: typeof MenuRoute
 }
 
@@ -92,6 +165,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -99,13 +186,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MenuRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/contacts': {
+      id: '/dashboard/contacts'
+      path: '/contacts'
+      fullPath: '/dashboard/contacts'
+      preLoaderRoute: typeof DashboardContactsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/menu': {
+      id: '/dashboard/menu'
+      path: '/menu'
+      fullPath: '/dashboard/menu'
+      preLoaderRoute: typeof DashboardMenuRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
+
+interface DashboardRouteChildren {
+  DashboardContactsRoute: typeof DashboardContactsRoute
+  DashboardMenuRoute: typeof DashboardMenuRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardContactsRoute: DashboardContactsRoute,
+  DashboardMenuRoute: DashboardMenuRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   ContactRoute: ContactRoute,
+  DashboardRoute: DashboardRouteWithChildren,
+  LoginRoute: LoginRoute,
   MenuRoute: MenuRoute,
 }
 export const routeTree = rootRouteImport

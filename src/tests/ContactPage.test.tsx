@@ -1,8 +1,13 @@
 import { Toaster } from "@/components/ui/sonner";
 import { ContactPage } from "@/components/ContactPage";
+import { submitContactMessage } from "@/lib/supabase/contacts";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/supabase/contacts", () => ({
+  submitContactMessage: vi.fn().mockResolvedValue(undefined),
+}));
 
 describe("ContactPage", () => {
   it("renders a labelled contact form with required fields", () => {
@@ -50,7 +55,7 @@ describe("ContactPage", () => {
     expect(emailInput).toHaveAttribute("aria-invalid", "true");
   });
 
-  it("shows a success toast after the simulated submission", async () => {
+  it("sends the message to Supabase and shows a success toast", async () => {
     const user = userEvent.setup();
     render(
       <>
@@ -68,8 +73,12 @@ describe("ContactPage", () => {
     await user.type(messageInput, "I would like to order a birthday cake.");
     await user.click(screen.getByRole("button", { name: /send message/i }));
 
-    expect(screen.getByRole("button", { name: /sending/i })).toBeDisabled();
-    expect(await screen.findByText("Message sent!", {}, { timeout: 3500 })).toBeInTheDocument();
+    expect(await screen.findByText("Message sent!")).toBeInTheDocument();
+    expect(submitContactMessage).toHaveBeenCalledWith({
+      name: "Jane Doe",
+      email: "jane@example.com",
+      message: "I would like to order a birthday cake.",
+    });
 
     expect(nameInput).toHaveValue("");
     expect(emailInput).toHaveValue("");

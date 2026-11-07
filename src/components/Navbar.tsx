@@ -1,5 +1,8 @@
+import { Button } from "@/components/ui/button";
+import { getSupabaseClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import type { AuthUser } from "@/lib/supabase/types";
 import { Link, useLocation } from "@tanstack/react-router";
-import { Menu, X } from "lucide-react";
+import { LayoutDashboard, LogIn, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const navItems = [
@@ -15,6 +18,26 @@ const focusStyles =
 export const Navbar = () => {
   const pathname = useLocation().pathname;
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    const supabase = getSupabaseClient();
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ? { id: session.user.id, email: session.user.email ?? "" } : null);
+    });
+
+    return () => {
+      data.subscription.unsubscribe();
+    };
+  }, []);
+
+  const accountLink = user
+    ? { to: "/dashboard" as const, label: "Dashboard" }
+    : { to: "/login" as const, label: "Staff login" };
+  const AccountIcon = user ? LayoutDashboard : LogIn;
+  const showAccountLink = pathname !== "/login" || Boolean(user);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -51,6 +74,20 @@ export const Navbar = () => {
               </li>
             );
           })}
+          {showAccountLink ? (
+            <li>
+              <Button
+                render={<Link to={accountLink.to} />}
+                nativeButton={false}
+                variant="outline"
+                size="sm"
+                className="h-9 px-3"
+              >
+                <AccountIcon aria-hidden="true" />
+                {accountLink.label}
+              </Button>
+            </li>
+          ) : null}
         </ul>
         <button
           type="button"
@@ -96,6 +133,19 @@ export const Navbar = () => {
                 </li>
               );
             })}
+            {showAccountLink ? (
+              <li className="py-4">
+                <Button
+                  render={<Link to={accountLink.to} onClick={() => setIsOpen(false)} />}
+                  nativeButton={false}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <AccountIcon aria-hidden="true" />
+                  {accountLink.label}
+                </Button>
+              </li>
+            ) : null}
           </ul>
         </div>
       </div>

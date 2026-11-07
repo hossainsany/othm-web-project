@@ -1,13 +1,14 @@
 # Local Bakery Website - OTHM Web and Mobile Applications Project
 
-A multi-page website for a fictional local bakery, built with React and Vite. The menu is stored in a local JS file, and the contact form validates input with TanStack Form before showing a demo success toast (no data is sent).
+A multi-page website for a fictional local bakery, built with React and Vite. The public menu, contact messages, and staff dashboard all use Supabase, and the contact form validates input with TanStack Form before saving the message.
 
 ## Pages
 
-- **Home:** intro and opening hours
-- **Menu:** bread, pastries, and cakes
+- **Home:** hero, favorite bakes, the bakery story, and opening hours
+- **Menu:** bread, pastries, and cakes loaded from Supabase
 - **About:** the bakery's story
-- **Contact:** address, map, and a validated contact form
+- **Contact:** address, map, and a validated contact form that saves messages to Supabase
+- **Staff sign in / Dashboard:** Supabase-powered menu and contact-message management
 
 ## Tech stack
 
@@ -17,7 +18,8 @@ A multi-page website for a fictional local bakery, built with React and Vite. Th
 - **Vite:** a build tool and dev server. It runs the project locally with instant reload (`npm run dev`) and bundles it into optimized files for production (`npm run build`).
 - **TanStack Router:** provides type-safe, file-based routing. Routes live in `src/routes`, and the route tree is generated automatically. It handles navigation between pages without reloading the browser.
 - **TanStack Form:** manages the contact form's values and validation.
-- **Sonner:** shows toast notifications, including the contact form's demo success message.
+- **Supabase:** provides the public menu data, contact-message storage, and staff authentication. The browser client is used directly; Row Level Security keeps staff-only data protected while allowing anyone to send a contact message.
+- **Sonner:** shows toast notifications, including contact-form success and error messages.
 - **Vitest and Testing Library:** run unit and interaction tests in a simulated browser environment.
 
 ## Requirements
@@ -67,6 +69,24 @@ npm install -g pnpm
 
 The page reloads automatically when you save changes.
 
+## Staff dashboard setup (Supabase)
+
+The staff dashboard is available at `/login`. It needs a Supabase project:
+
+1. Create a project at [supabase.com](https://supabase.com/).
+2. Open the SQL Editor, paste `supabase/schema.sql`, and run it. This creates the tables, Row Level Security policies, and starter menu items.
+3. Create a staff user under **Authentication → Users**.
+4. Add the project URL and anon/publishable key to your environment file:
+
+   ```bash
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
+
+   The older `SUPABASE_URL` and `SUPABASE_ANON_KEY` names are also supported.
+
+Restart the dev server after changing environment variables, then sign in at `/login`. The anon key is safe to use in the browser; Row Level Security restricts staff operations to authenticated users.
+
 ## Other commands
 
 | Action                               | npm               | pnpm           |
@@ -84,15 +104,21 @@ website/
 ├── src/
 │   ├── assets/          # Images and other imported assets
 │   ├── components/
+│   │   ├── dashboard/   # Staff dashboard UI
 │   │   └── ui/          # shadcn/ui components
-│   ├── lib/             # Shared utilities (cn)
+│   ├── lib/
+│   │   ├── supabase/    # Browser Supabase client, auth, and CRUD helpers
+│   │   └── validation.ts
 │   ├── routes/          # File-based routes
 │   │   ├── __root.tsx   # Root layout, devtools, and 404 page
+│   │   ├── dashboard/   # Protected staff routes
 │   │   └── index.tsx    # Home
 │   ├── tests/           # Unit and interaction tests
 │   ├── index.css        # Tailwind and shadcn theme tokens
 │   ├── main.tsx         # Router setup and app entry point
 │   └── routeTree.gen.ts # Generated route tree (do not edit)
+├── supabase/
+│   └── schema.sql       # Tables, RLS policies, and seed data
 ├── components.json      # shadcn configuration
 ├── index.html
 ├── package.json

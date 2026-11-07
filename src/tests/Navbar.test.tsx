@@ -16,7 +16,14 @@ function renderNavbar(initialEntry = "/") {
   const menuRoute = createRoute({ getParentRoute: () => rootRoute, path: "/menu" });
   const aboutRoute = createRoute({ getParentRoute: () => rootRoute, path: "/about" });
   const contactRoute = createRoute({ getParentRoute: () => rootRoute, path: "/contact" });
-  const routeTree = rootRoute.addChildren([indexRoute, menuRoute, aboutRoute, contactRoute]);
+  const loginRoute = createRoute({ getParentRoute: () => rootRoute, path: "/login" });
+  const routeTree = rootRoute.addChildren([
+    indexRoute,
+    menuRoute,
+    aboutRoute,
+    contactRoute,
+    loginRoute,
+  ]);
   const router = createRouter({
     routeTree,
     history: createMemoryHistory({ initialEntries: [initialEntry] }),

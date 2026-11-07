@@ -9,8 +9,8 @@ const openingHour = [
 
 export const Hours = () => {
   return (
-    <section aria-labelledby="opening-hours-heading" className="md:py-24 bg-secondary">
-      <div className="container mx-auto px-4 lg:px-12 grid grid-cols-1 md:grid-cols-2 bg-secondary md:bg-background rounded-lg md:border py-24 md:p-12 gap-12 md:gap-0">
+    <section aria-labelledby="opening-hours-heading" className="md:py-24 bg-background">
+      <div className="container mx-auto px-4 lg:px-12 grid grid-cols-1 md:grid-cols-2 bg-secondary rounded-lg md:border py-24 md:p-12 gap-12 md:gap-0">
         <div>
           <h2 id="opening-hours-heading" className="text-xl lg:text-2xl font-bold mb-2">
             Opening hours

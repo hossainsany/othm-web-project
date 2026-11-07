@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useDocumentTitle } from "@/hooks/useDocumentTitle";
+import { submitContactMessage } from "@/lib/supabase/contacts";
+import { contactMessageInputSchema } from "@/lib/validation";
 import { useForm } from "@tanstack/react-form";
 import { Loader2, Send } from "lucide-react";
 import { useState } from "react";
@@ -38,16 +40,31 @@ export const ContactForm = () => {
       email: "",
       message: "",
     },
-    onSubmit: async () => {
+    onSubmit: async ({ value }) => {
+      const parsed = contactMessageInputSchema.safeParse(value);
+
+      if (!parsed.success) {
+        toast.error("Please check your message", {
+          description: parsed.error.issues[0]?.message ?? "Some details are missing.",
+        });
+        return;
+      }
+
       setIsSubmitting(true);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setIsSubmitting(false);
 
-      toast.success("Message sent!", {
-        description: "Thanks for reaching out. We'll get back to you soon.",
-      });
-
-      form.reset();
+      try {
+        await submitContactMessage(parsed.data);
+        toast.success("Message sent!", {
+          description: "Thanks for reaching out. We'll get back to you soon.",
+        });
+        form.reset();
+      } catch (error) {
+        toast.error("Could not send your message", {
+          description: getErrorMessage(error) ?? "Please try again in a moment.",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
     },
   });
   return (
@@ -201,7 +218,7 @@ export const ContactForm = () => {
       </p>
 
       <p id="contact-form-note" className="text-xs text-muted-foreground text-center">
-        This is a demo form — your message won't be sent anywhere.
+        Your message goes straight to our inbox. We'll only use your details to reply.
       </p>
     </form>
   );
