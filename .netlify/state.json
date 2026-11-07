@@ -1,0 +1,15 @@
+{
+	"geolocation": {
+		"data": {
+			"country": {
+				"code": "BD",
+				"name": "Bangladesh"
+			},
+			"timezone": "Asia/Dhaka",
+			"latitude": 23.7018,
+			"longitude": 90.3742
+		},
+		"timestamp": 1793784018836
+	},
+	"dbConnectionString": "postgres://postgres@localhost:35555/postgres"
+}
